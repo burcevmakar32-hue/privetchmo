@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Космическая ракета | Telegram Mini App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c0c2e 0%, #1a0a2e 50%, #2d0b3a 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(147, 51, 234, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #c084fc;
+            font-size: 24px;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #c084fc, #db2777);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .balance-container {
+            background: rgba(30, 10, 60, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border: 1px solid #9333ea;
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+        }
+        
+        .balance-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .balance-label {
+            font-size: 14px;
+            color: #93c5fd;
+            margin-bottom: 8px;
+        }
+        
+        .balance {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        
+        .balance i {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+        
+        .btn-replenish {
+            background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-replenish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(147, 51, 234, 0.4);
+        }
+        
+        .game-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .timer-container {
+            background: rgba(30, 10, 60, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            border: 1px solid #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .timer-title {
+            font-size: 16px;
+            color: #93c5fd;
+            margin-bottom: 8px;
+        }
+        
+        .timer {
+            font-size: 36px;
+            font-weight: bold;
+            color: #60a5fa;
+            font-family: monospace;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+        
+        .rocket-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            margin: 20px 0;
+            overflow: hidden;
+            border-radius: 15px;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                rgba(10, 5, 30, 0.6);
+            border: 2px solid rgba(147, 51, 234, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        
+        .space-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        .rocket {
+            position: absolute;
+            width: 100px;
+            height: 180px;
+            bottom: 40px;
+            transition: bottom 0.05s linear;
+            z-index: 10;
+            transform-origin: center bottom;
+            animation: rocketFloat 3s infinite ease-in-out;
+        }
+        
+        @keyframes rocketFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(0.5deg); }
+        }
+        
+        .rocket-body {
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(0deg, 
+                    #1e3a8a 0%, 
+                    #3b82f6 20%, 
+                    #c084fc 50%, 
+                    #db2777 80%, 
+                    #fbbf24 100%);
+            border-radius: 50% 50% 40% 40%;
+            position: relative;
+            box-shadow: 
+                0 0 20px rgba(59, 130, 246, 0.7),
+                0 0 40px rgba(219, 39, 119, 0.5),
+                inset 0 10px 20px rgba(255, 255, 255, 0.2);
+        }
+        
+        .rocket-window {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 30% 30%, #60a5fa, #1e40af);
+            border-radius: 50%;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 3px solid #1e40af;
+            box-shadow: 
+                inset 0 0 10px rgba(255, 255, 255, 0.3),
+                0 0 10px rgba(96, 165, 250, 0.5);
+        }
+        
+        .rocket-fin {
+            position: absolute;
+            width: 25px;
+            height: 60px;
+            background: linear-gradient(0deg, #db2777 0%, #fbbf24 100%);
+            bottom: 0;
+            box-shadow: 0 0 10px rgba(219, 39, 119, 0.5);
+        }
+        
+        .rocket-fin.left {
+            left: -15px;
+            border-radius: 5px 0 0 5px;
+            transform: skewY(10deg) perspective(10px) rotateY(5deg);
+        }
+        
+        .rocket-fin.right {
+            right: -15px;
+            border-radius: 0 5px 5px 0;
+            transform: skewY(-10deg) perspective(10px) rotateY(-5deg);
+        }
+        
+        .fire-container {
+            position: absolute;
+            width: 60px;
+            height: 120px;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+        
+        .fire {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, 
+                rgba(251, 191, 36, 0.9) 0%, 
+                rgba(220, 38, 38, 0.7) 30%, 
+                rgba(220, 38, 38, 0.3) 70%, 
+                transparent 100%);
+            border-radius: 50% 50% 20% 20%;
+            filter: blur(5px);
+            animation: fireAnimation 0.2s infinite alternate;
+        }
+        
+        @keyframes fireAnimation {
+            0% { 
+                height: 80%; 
+                opacity: 0.8; 
+                transform: scaleY(0.9);
+            }
+            100% { 
+                height: 100%; 
+                opacity: 1; 
+                transform: scaleY(1.1);
+            }
+        }
+        
+        .spark {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #fbbf24, #dc2626);
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+        
+        .explosion {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, 
+                rgba(251, 191, 36, 0.9) 0%, 
+                rgba(220, 38, 38, 0.7) 30%, 
+                rgba(220, 38, 38, 0.3) 60%, 
+                transparent 80%);
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 5;
+            filter: blur(10px);
+        }
+        
+        .coefficient {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #4ade80;
+            border: 2px solid #4ade80;
+            z-index: 20;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.5);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-bet {
+            background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(147, 51, 234, 0.4);
+        }
+        
+        .btn-cashout {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .bottom-menu {
+            display: flex;
+            background: rgba(30, 10, 60, 0.9);
+            border-radius: 15px;
+            padding: 10px;
+            margin-top: auto;
+            border: 1px solid #9333ea;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .menu-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #c084fc;
+        }
+        
+        .menu-item.active {
+            background: rgba(147, 51, 234, 0.3);
+            color: #f0abfc;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .menu-item i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .menu-item span {
+            font-size: 14px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a0a2e 0%, #2d0b3a 100%);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid #9333ea;
+            box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+            animation: modalAppear 0.3s ease-out;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            color: #c084fc;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #f0abfc;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #93c5fd;
+            font-size: 16px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #3b82f6;
+            background: rgba(30, 10, 60, 0.8);
+            color: white;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #c084fc;
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+        }
+        
+        .btn-confirm {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-confirm:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(147, 51, 234, 0.5);
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .history-container {
+            background: rgba(30, 10, 60, 0.8);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #9333ea;
+        }
+        
+        .history-title {
+            font-size: 18px;
+            color: #c084fc;
+            margin-bottom: 15px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid rgba(147, 51, 234, 0.3);
+            align-items: center;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .win {
+            color: #4ade80;
+        }
+        
+        .loss {
+            color: #ef4444;
+        }
+        
+        .status-message {
+            text-align: center;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid #4ade80;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+        
+        .section-content {
+            background: rgba(30, 10, 60, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #9333ea;
+        }
+        
+        .section-content h2 {
+            color: #c084fc;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+        
+        .profile-info {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #c084fc, #db2777);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 0 30px rgba(192, 132, 252, 0.5);
+            border: 3px solid #9333ea;
+        }
+        
+        .profile-name {
+            font-size: 24px;
+            color: #f0abfc;
+            margin-bottom: 10px;
+        }
+        
+        .profile-id {
+            font-size: 16px;
+            color: #93c5fd;
+            margin-bottom: 30px;
+            background: rgba(30, 10, 60, 0.6);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(59, 130, 246, 0.3);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f0abfc;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(240, 171, 252, 0.3);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #93c5fd;
+        }
+        
+        .rules-container {
+            background: rgba(30, 10, 60, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #9333ea;
+        }
+        
+        .rules-title {
+            font-size: 20px;
+            color: #c084fc;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .rules-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .rules-list li {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(147, 51, 234, 0.3);
+            color: #c084fc;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .rules-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .rules-list i {
+            margin-top: 3px;
+            color: #fbbf24;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .rules-text {
+            color: #93c5fd;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 15px;
+            }
+            
+            .rocket-container {
+                height: 300px;
+            }
+            
+            .rocket {
+                width: 80px;
+                height: 150px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .coefficient {
+                font-size: 24px;
+                padding: 10px 15px;
+            }
+        }
+        
+        /* Прокрутка */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 10, 60, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #9333ea;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c084fc;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .btn-rules {
+            background: rgba(147, 51, 234, 0.2);
+            color: #c084fc;
+            border: 1px solid #9333ea;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-rules:hover {
+            background: rgba(147, 51, 234, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .telegram-payment-container {
+            margin-top: 20px;
+        }
+        
+        .telegram-payment-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .telegram-payment-option {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .telegram-payment-option:hover {
+            background: rgba(59, 130, 246, 0.4);
+            transform: translateY(-3px);
+        }
+        
+        .telegram-stars {
+            font-size: 24px;
+            color: #fbbf24;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .telegram-price {
+            font-size: 14px;
+            color: #93c5fd;
+        }
+        
+        .telegram-info {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid #4ade80;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .telegram-info h3 {
+            color: #4ade80;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .telegram-info p {
+            color: #93c5fd;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1><i class="fas fa-rocket"></i> Космическая ракета</h1>
+            <p style="color: #93c5fd;">Сделайте ставку и заберите выигрыш вовремя!</p>
+        </header>
+        
+        <div class="balance-container">
+            <div class="balance-info">
+                <div class="balance-label">Ваш баланс</div>
+                <div class="balance">
+                    <i class="fas fa-star"></i> <span id="balance">0</span>
+                </div>
+            </div>
+            <button class="btn-replenish" id="replenishBtn">
+                <i class="fas fa-plus-circle"></i> Пополнить
+            </button>
+        </div>
+        
+        <!-- Игровая секция -->
+        <div class="section active" id="game">
+            <div class="game-area">
+                <div class="timer-container">
+                    <div class="timer-title">До взлета ракеты:</div>
+                    <div class="timer" id="timer">15.00</div>
+                </div>
+                
+                <div class="rocket-container">
+                    <div class="space-background" id="spaceBackground"></div>
+                    <div class="coefficient" id="coefficient">1.00x</div>
+                    
+                    <div class="rocket" id="rocket">
+                        <div class="rocket-body">
+                            <div class="rocket-window"></div>
+                            <div class="rocket-fin left"></div>
+                            <div class="rocket-fin right"></div>
+                        </div>
+                        <div class="fire-container" id="fireContainer">
+                            <div class="fire" id="fire"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="explosion" id="explosion"></div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-bet" id="betBtn">
+                        <i class="fas fa-coins"></i> Поставить ставку
+                    </button>
+                    <button class="btn btn-cashout" id="cashoutBtn" disabled>
+                        <i class="fas fa-money-bill-wave"></i> Забрать
+                    </button>
+                </div>
+                
+                <div id="statusMessage" class="status-message" style="display: none;"></div>
+                
+                <div class="game-info">
+                    <button class="btn-rules" id="rulesBtn">
+                        <i class="fas fa-info-circle"></i> Правила игры
+                    </button>
+                    <div style="color: #93c5fd; font-size: 14px;">
+                        <i class="fas fa-history"></i> История ниже
+                    </div>
+                </div>
+                
+                <div class="history-container">
+                    <div class="history-title">
+                        <i class="fas fa-history"></i> История игр
+                    </div>
+                    <div id="historyList">
+                        <!-- История будет загружаться здесь -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Секция профиля -->
+        <div class="section" id="profile">
+            <div class="section-content">
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <div class="profile-name" id="profileName">Космонавт</div>
+                    <div class="profile-id" id="profileId">ID: 123456789</div>
+                </div>
+                
+                <h2><i class="fas fa-chart-bar"></i> Статистика</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalGames">0</div>
+                        <div class="stat-label">Всего игр</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="winsCount">0</div>
+                        <div class="stat-label">Побед</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalWon">0</div>
+                        <div class="stat-label">Звезд выиграно</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="biggestWin">0</div>
+                        <div class="stat-label">Крупнейший выигрыш</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="winRate">0%</div>
+                        <div class="stat-label">Процент побед</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="currentStreak">0</div>
+                        <div class="stat-label">Текущая серия</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-menu">
+            <div class="menu-item active" data-section="game">
+                <i class="fas fa-rocket"></i>
+                <span>Игра</span>
+            </div>
+            <div class="menu-item" data-section="profile">
+                <i class="fas fa-user"></i>
+                <span>Профиль</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для ставки -->
+    <div class="modal" id="betModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-coins"></i> Сделать ставку</h2>
+                <button class="close-modal" id="closeBetModal">&times;</button>
+            </div>
+            <div class="input-group">
+                <label for="betAmount">Сумма ставки (звезды <i class="fas fa-star"></i>)</label>
+                <input type="number" id="betAmount" min="1" max="1000" value="10" placeholder="Введите количество звезд">
+                <div style="margin-top: 8px; font-size: 14px; color: #93c5fd;">
+                    Доступно: <span id="availableBalance">0</span> <i class="fas fa-star"></i>
+                </div>
+            </div>
+            <button class="btn-confirm" id="confirmBet">Поставить ставку</button>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для пополнения через Telegram Stars -->
+    <div class="modal" id="replenishModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fab fa-telegram"></i> Пополнение через Telegram Stars</h2>
+                <button class="close-modal" id="closeReplenishModal">&times;</button>
+            </div>
+            
+            <div class="telegram-payment-container">
+                <p style="color: #93c5fd; text-align: center; margin-bottom: 20px;">
+                    Выберите пакет звезд для пополнения баланса
+                </p>
+                
+                <div class="telegram-payment-options">
+                    <div class="telegram-payment-option" data-amount="50" data-price="0.99">
+                        <div class="telegram-stars">50 <i class="fas fa-star"></i></div>
+                        <div class="telegram-price">~ 0.99 USD</div>
+                    </div>
+                    <div class="telegram-payment-option" data-amount="100" data-price="1.99">
+                        <div class="telegram-stars">100 <i class="fas fa-star"></i></div>
+                        <div class="telegram-price">~ 1.99 USD</div>
+                    </div>
+                    <div class="telegram-payment-option" data-amount="250" data-price="4.99">
+                        <div class="telegram-stars">250 <i class="fas fa-star"></i></div>
+                        <div class="telegram-price">~ 4.99 USD</div>
+                    </div>
+                    <div class="telegram-payment-option" data-amount="500" data-price="9.99">
+                        <div class="telegram-stars">500 <i class="fas fa-star"></i></div>
+                        <div class="telegram-price">~ 9.99 USD</div>
+                    </div>
+                </div>
+                
+                <div class="telegram-info">
+                    <h3><i class="fas fa-info-circle"></i> Как это работает</h3>
+                    <p>Telegram Stars — это внутренняя валюта Telegram для покупок в мини-приложениях. При нажатии на пакет откроется окно оплаты Telegram.</p>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn-confirm" id="customAmountBtn">
+                        <i class="fas fa-edit"></i> Указать свою сумму
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для указания своей суммы -->
+    <div class="modal" id="customAmountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-edit"></i> Указать свою сумму</h2>
+                <button class="close-modal" id="closeCustomAmountModal">&times;</button>
+            </div>
+            <div class="input-group">
+                <label for="customAmount">Сколько звезд вы хотите купить?</label>
+                <input type="number" id="customAmount" min="10" max="10000" value="100" placeholder="Введите количество звезд">
+                <div style="margin-top: 8px; font-size: 14px; color: #93c5fd;">
+                    Минимум: 10 звезд<br>
+                    Примерная стоимость: <span id="estimatedPrice">~ 1.99 USD</span>
+                </div>
+            </div>
+            <button class="btn-confirm" id="confirmCustomAmount">Перейти к оплате</button>
+        </div>
+    </div>
+    
+    <!-- Модальное окно с правилами -->
+    <div class="modal" id="rulesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-info-circle"></i> Правила игры</h2>
+                <button class="close-modal" id="closeRulesModal">&times;</button>
+            </div>
+            
+            <div class="rules-container">
+                <ul class="rules-list">
+                    <li>
+                        <i class="fas fa-rocket"></i>
+                        <div class="rules-text">Каждые 15 секунд запускается ракета. Сделайте ставку до её взлета.</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-star"></i>
+                        <div class="rules-text">Ставка принимается в звездах. Минимальная ставка - 1 звезда.</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-chart-line"></i>
+                        <div class="rules-text">После взлета коэффициент начинает расти от 1.00x. Чем дольше летит ракета, тем выше коэффициент.</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-bomb"></i>
+                        <div class="rules-text">Ракета взрывается в случайный момент от 1 до 10 секунд после взлета.</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div class="rules-text">Нажмите "Забрать" до взрыва, чтобы получить выигрыш: ставка × текущий коэффициент.</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div class="rules-text">Если ракета взорвется до того, как вы заберете выигрыш, ставка сгорает.</div>
+                    </li>
+                    <li>
+                        <i class="fab fa-telegram"></i>
+                        <div class="rules-text">Пополнить баланс можно через Telegram Stars в разделе пополнения.</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-trophy"></i>
+                        <div class="rules-text">Следите за статистикой в профиле и улучшайте свои результаты!</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно оплаты (симуляция) -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fab fa-telegram"></i> Оплата Telegram Stars</h2>
+                <button class="close-modal" id="closePaymentModal">&times;</button>
+            </div>
+            
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="font-size: 48px; color: #fbbf24; margin-bottom: 10px;">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div style="font-size: 24px; color: #f0abfc; margin-bottom: 5px;">
+                    <span id="paymentAmount">100</span> звезд
+                </div>
+                <div style="color: #93c5fd; margin-bottom: 30px;">
+                    Стоимость: <span id="paymentPrice">~ 1.99 USD</span>
+                </div>
+                
+                <div style="background: rgba(59, 130, 246, 0.1); border-radius: 10px; padding: 15px; margin-bottom: 20px; border: 1px solid #3b82f6;">
+                    <div style="color: #c084fc; margin-bottom: 5px; font-size: 16px;">Способ оплаты</div>
+                    <div style="color: #93c5fd; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fab fa-cc-visa" style="color: #1a1f71; font-size: 24px;"></i>
+                        <i class="fab fa-cc-mastercard" style="color: #eb001b; font-size: 24px;"></i>
+                        <i class="fab fa-cc-paypal" style="color: #003087; font-size: 24px;"></i>
+                    </div>
+                </div>
+                
+                <div id="paymentStatus" style="display: none; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <!-- Сообщение о статусе платежа -->
+                </div>
+                
+                <button class="btn-confirm" id="simulatePaymentBtn" style="margin-bottom: 15px;">
+                    <i class="fas fa-lock"></i> Симулировать оплату
+                </button>
+                
+                <div style="color: #93c5fd; font-size: 12px; line-height: 1.5;">
+                    В реальном приложении здесь открывается платежное окно Telegram.<br>
+                    После успешной оплаты звезды автоматически зачислятся на ваш баланс.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Инициализация данных
+        let userBalance = 0; // Начальный баланс - 0 звезд
+        let currentBet = 0;
+        let currentCoefficient = 1.00;
+        let gamePhase = 'waiting'; // 'waiting', 'flying', 'exploded'
+        let timerValue = 15;
+        let timerInterval = null;
+        let rocketInterval = null;
+        let explosionTime = null;
+        let gameHistory = [];
+        let userStats = {
+            totalGames: 0,
+            wins: 0,
+            losses: 0,
+            totalWon: 0,
+            totalBet: 0,
+            biggestWin: 0,
+            currentStreak: 0,
+            bestStreak: 0
+        };
+        let sparks = [];
+        let isTelegramApp = false; // Флаг для определения, запущено ли в Telegram
+        
+        // DOM элементы
+        const balanceEl = document.getElementById('balance');
+        const timerEl = document.getElementById('timer');
+        const coefficientEl = document.getElementById('coefficient');
+        const rocketEl = document.getElementById('rocket');
+        const fireContainer = document.getElementById('fireContainer');
+        const fireEl = document.getElementById('fire');
+        const explosionEl = document.getElementById('explosion');
+        const spaceBackground = document.getElementById('spaceBackground');
+        const betBtn = document.getElementById('betBtn');
+        const cashoutBtn = document.getElementById('cashoutBtn');
+        const betModal = document.getElementById('betModal');
+        const closeBetModal = document.getElementById('closeBetModal');
+        const betAmountEl = document.getElementById('betAmount');
+        const availableBalanceEl = document.getElementById('availableBalance');
+        const confirmBetBtn = document.getElementById('confirmBet');
+        const replenishBtn = document.getElementById('replenishBtn');
+        const replenishModal = document.getElementById('replenishModal');
+        const closeReplenishModal = document.getElementById('closeReplenishModal');
+        const customAmountModal = document.getElementById('customAmountModal');
+        const closeCustomAmountModal = document.getElementById('closeCustomAmountModal');
+        const customAmountEl = document.getElementById('customAmount');
+        const estimatedPriceEl = document.getElementById('estimatedPrice');
+        const confirmCustomAmountBtn = document.getElementById('confirmCustomAmount');
+        const customAmountBtn = document.getElementById('customAmountBtn');
+        const rulesBtn = document.getElementById('rulesBtn');
+        const rulesModal = document.getElementById('rulesModal');
+        const closeRulesModal = document.getElementById('closeRulesModal');
+        const statusMessageEl = document.getElementById('statusMessage');
+        const historyListEl = document.getElementById('historyList');
+        const menuItems = document.querySelectorAll('.menu-item');
+        const sections = document.querySelectorAll('.section');
+        const telegramPaymentOptions = document.querySelectorAll('.telegram-payment-option');
+        const paymentModal = document.getElementById('paymentModal');
+        const closePaymentModal = document.getElementById('closePaymentModal');
+        const paymentAmountEl = document.getElementById('paymentAmount');
+        const paymentPriceEl = document.getElementById('paymentPrice');
+        const simulatePaymentBtn = document.getElementById('simulatePaymentBtn');
+        const paymentStatusEl = document.getElementById('paymentStatus');
+        
+        // Статистические элементы
+        const totalGamesEl = document.getElementById('totalGames');
+        const winsCountEl = document.getElementById('winsCount');
+        const totalWonEl = document.getElementById('totalWon');
+        const biggestWinEl = document.getElementById('biggestWin');
+        const winRateEl = document.getElementById('winRate');
+        const currentStreakEl = document.getElementById('currentStreak');
+        
+        // Проверка, запущено ли в Telegram Web App
+        function checkTelegramApp() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                isTelegramApp = true;
+                console.log('Приложение запущено в Telegram Web App');
+                
+                // Инициализация Telegram WebApp
+                const tg = window.Telegram.WebApp;
+                tg.expand(); // Развернуть приложение на весь экран
+                tg.enableClosingConfirmation(); // Включить подтверждение закрытия
+                
+                // Получение данных пользователя
+                const user = tg.initDataUnsafe.user;
+                if (user) {
+                    document.getElementById('profileName').textContent = user.first_name || 'Пользователь';
+                    document.getElementById('profileId').textContent = `ID: ${user.id}`;
+                }
+                
+                // Установка темы
+                if (tg.colorScheme === 'dark') {
+                    document.body.style.background = 'linear-gradient(135deg, #0a0a23 0%, #150a28 50%, #280b35 100%)';
+                }
+                
+                return true;
+            } else {
+                console.log('Приложение запущено вне Telegram');
+                return false;
+            }
+        }
+        
+        // Создание звездного фона
+        function createStarfield() {
+            spaceBackground.innerHTML = '';
+            sparks = [];
+            
+            // Создаем звезды
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                star.style.opacity = Math.random() * 0.7 + 0.3;
+                
+                // Анимация мерцания
+                star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite alternate`;
+                
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes twinkle {
+                        0% { opacity: ${star.style.opacity}; }
+                        100% { opacity: ${parseFloat(star.style.opacity) * 0.5}; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                spaceBackground.appendChild(star);
+            }
+        }
+        
+        // Создание искр
+        function createSpark() {
+            const spark = document.createElement('div');
+            spark.className = 'spark';
+            
+            // Позиция внизу ракеты
+            const rocketRect = rocketEl.getBoundingClientRect();
+            const containerRect = rocketEl.parentElement.getBoundingClientRect();
+            
+            const x = (rocketRect.left + rocketRect.width / 2 - containerRect.left) + (Math.random() * 30 - 15);
+            const y = containerRect.height - 40;
+            
+            spark.style.left = `${x}px`;
+            spark.style.top = `${y}px`;
+            
+            spaceBackground.appendChild(spark);
+            
+            // Анимация искры
+            const duration = Math.random() * 1 + 0.5;
+            const moveX = (Math.random() * 60 - 30);
+            const moveY = -(Math.random() * 100 + 50);
+            
+            spark.style.transition = `all ${duration}s linear`;
+            spark.style.opacity = '0.8';
+            
+            setTimeout(() => {
+                spark.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                spark.style.opacity = '0';
+            }, 10);
+            
+            // Удаление искры после анимации
+            setTimeout(() => {
+                if (spark.parentElement) {
+                    spark.parentElement.removeChild(spark);
+                }
+            }, duration * 1000);
+        }
+        
+        // Загрузка данных из localStorage
+        function loadData() {
+            const savedBalance = localStorage.getItem('rocketStarsBalance');
+            const savedHistory = localStorage.getItem('rocketStarsHistory');
+            const savedStats = localStorage.getItem('rocketStarsStats');
+            
+            if (savedBalance) userBalance = parseInt(savedBalance);
+            if (savedHistory) gameHistory = JSON.parse(savedHistory);
+            if (savedStats) userStats = JSON.parse(savedStats);
+            
+            updateUI();
+            updateHistory();
+            updateStats();
+        }
+        
+        // Сохранение данных в localStorage
+        function saveData() {
+            localStorage.setItem('rocketStarsBalance', userBalance.toString());
+            localStorage.setItem('rocketStarsHistory', JSON.stringify(gameHistory));
+            localStorage.setItem('rocketStarsStats', JSON.stringify(userStats));
+        }
+        
+        // Обновление интерфейса
+        function updateUI() {
+            balanceEl.textContent = userBalance;
+            availableBalanceEl.textContent = userBalance;
+            
+            // Ограничение максимальной ставки доступным балансом
+            betAmountEl.max = userBalance;
+            
+            if (gamePhase === 'waiting') {
+                betBtn.disabled = userBalance <= 0;
+                cashoutBtn.disabled = true;
+            } else if (gamePhase === 'flying') {
+                betBtn.disabled = true;
+                cashoutBtn.disabled = currentBet <= 0;
+            } else {
+                betBtn.disabled = true;
+                cashoutBtn.disabled = true;
+            }
+        }
+        
+        // Обновление истории игр
+        function updateHistory() {
+            historyListEl.innerHTML = '';
+            
+            if (gameHistory.length === 0) {
+                historyListEl.innerHTML = '<div style="text-align: center; color: #93c5fd; padding: 20px;">История игр пуста</div>';
+                return;
+            }
+            
+            // Показать последние 10 игр
+            const recentHistory = gameHistory.slice(-10).reverse();
+            
+            recentHistory.forEach(game => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const resultClass = game.result === 'win' ? 'win' : 'loss';
+                const resultText = game.result === 'win' ? 'Выигрыш' : 'Проигрыш';
+                const resultIcon = game.result === 'win' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+                
+                historyItem.innerHTML = `
+                    <div>
+                        <div>Коэффициент: <strong style="color: #c084fc;">${game.coefficient.toFixed(2)}x</strong></div>
+                        <div style="font-size: 12px; color: #93c5fd;">${game.time}</div>
+                    </div>
+                    <div>
+                        <div class="${resultClass}">${resultIcon} ${resultText}</div>
+                        <div style="font-size: 16px; font-weight: bold;">${game.amount} <i class="fas fa-star"></i></div>
+                    </div>
+                `;
+                
+                historyListEl.appendChild(historyItem);
+            });
+        }
+        
+        // Обновление статистики
+        function updateStats() {
+            // Обновление профиля
+            totalGamesEl.textContent = userStats.totalGames;
+            winsCountEl.textContent = userStats.wins;
+            totalWonEl.textContent = userStats.totalWon;
+            biggestWinEl.textContent = userStats.biggestWin;
+            
+            // Расчет процента побед
+            const winRate = userStats.totalGames > 0 ? Math.round((userStats.wins / userStats.totalGames) * 100) : 0;
+            winRateEl.textContent = winRate + '%';
+            
+            currentStreakEl.textContent = userStats.currentStreak;
+        }
+        
+        // Показать сообщение о статусе
+        function showStatusMessage(text, type) {
+            statusMessageEl.textContent = text;
+            statusMessageEl.className = `status-message ${type}`;
+            statusMessageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                statusMessageEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Расчет цены по количеству звезд
+        function calculatePrice(amount) {
+            // Примерные цены: 50 звезд = 0.99$, 100 = 1.99$, 250 = 4.99$, 500 = 9.99$
+            if (amount <= 50) return '~ 0.99 USD';
+            if (amount <= 100) return '~ 1.99 USD';
+            if (amount <= 250) return '~ 4.99 USD';
+            if (amount <= 500) return '~ 9.99 USD';
+            // Для больших сумм
+            return `~ ${(amount / 50 * 0.99).toFixed(2)} USD`;
+        }
+        
+        // Таймер обратного отсчета
+        function startTimer() {
+            timerValue = 15;
+            timerEl.textContent = timerValue.toFixed(2);
+            
+            clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timerValue -= 0.01;
+                
+                if (timerValue <= 0) {
+                    timerValue = 0;
+                    clearInterval(timerInterval);
+                    startRocketFlight();
+                }
+                
+                timerEl.textContent = timerValue.toFixed(2);
+            }, 10);
+        }
+        
+        // Запуск полета ракеты
+        function startRocketFlight() {
+            gamePhase = 'flying';
+            updateUI();
+            
+            // Скрываем огонь в начале
+            fireContainer.style.display = 'none';
+            
+            // Случайное время взрыва от 1 до 10 секунд
+            explosionTime = 1 + Math.random() * 9;
+            let flightTime = 0;
+            currentCoefficient = 1.00;
+            
+            // Поднимаем ракету
+            let rocketBottom = 40;
+            rocketEl.style.bottom = `${rocketBottom}px`;
+            
+            // Запускаем интервал для полета
+            clearInterval(rocketInterval);
+            rocketInterval = setInterval(() => {
+                flightTime += 0.1;
+                
+                // Увеличиваем коэффициент
+                currentCoefficient = 1.00 + flightTime * 0.1;
+                coefficientEl.textContent = currentCoefficient.toFixed(2) + 'x';
+                
+                // Поднимаем ракету
+                rocketBottom += 3;
+                rocketEl.style.bottom = `${rocketBottom}px`;
+                
+                // Показываем огонь после 0.2 секунды
+                if (flightTime > 0.2 && fireContainer.style.display === 'none') {
+                    fireContainer.style.display = 'block';
+                }
+                
+                // Создаем искры во время полета
+                if (Math.random() > 0.7) {
+                    createSpark();
+                }
+                
+                // Проверяем, не взорвалась ли ракета
+                if (flightTime >= explosionTime) {
+                    explodeRocket();
+                }
+            }, 100);
+        }
+        
+        // Взрыв ракеты
+        function explodeRocket() {
+            gamePhase = 'exploded';
+            clearInterval(rocketInterval);
+            
+            // Скрываем огонь
+            fireContainer.style.display = 'none';
+            
+            // Показываем взрыв
+            explosionEl.style.opacity = '1';
+            explosionEl.style.transform = 'scale(1)';
+            
+            // Создаем много искр при взрыве
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => createSpark(), i * 50);
+            }
+            
+            // Если ставка не забрана, игрок проигрывает
+            if (currentBet > 0) {
+                // Обновляем статистику
+                userStats.totalGames++;
+                userStats.losses++;
+                userStats.currentStreak = 0;
+                userStats.totalBet += currentBet;
+                
+                gameHistory.push({
+                    amount: currentBet,
+                    coefficient: currentCoefficient,
+                    result: 'loss',
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                
+                showStatusMessage(`Ракета взорвалась! Вы проиграли ${currentBet} ⭐`, 'error');
+                currentBet = 0;
+                saveData();
+                updateUI();
+                updateHistory();
+                updateStats();
+            }
+            
+            // Сбрасываем коэффициент
+            currentCoefficient = 1.00;
+            coefficientEl.textContent = '1.00x';
+            
+            // Через 2 секунды скрываем взрыв и запускаем таймер заново
+            setTimeout(() => {
+                explosionEl.style.opacity = '0';
+                explosionEl.style.transform = 'scale(0.5)';
+                rocketEl.style.bottom = '40px';
+                
+                gamePhase = 'waiting';
+                updateUI();
+                startTimer();
+            }, 2000);
+        }
+        
+        // Забрать выигрыш
+        function cashout() {
+            if (gamePhase !== 'flying' || currentBet === 0) return;
+            
+            clearInterval(rocketInterval);
+            
+            // Вычисляем выигрыш
+            const winAmount = Math.round(currentBet * currentCoefficient);
+            userBalance += winAmount;
+            
+            // Обновляем статистику
+            userStats.totalGames++;
+            userStats.wins++;
+            userStats.totalWon += winAmount;
+            userStats.currentStreak++;
+            userStats.totalBet += currentBet;
+            
+            if (winAmount > userStats.biggestWin) {
+                userStats.biggestWin = winAmount;
+            }
+            
+            if (userStats.currentStreak > userStats.bestStreak) {
+                userStats.bestStreak = userStats.currentStreak;
+            }
+            
+            showStatusMessage(`Вы успели забрать выигрыш! +${winAmount} ⭐`, 'success');
+            
+            // Добавляем в историю
+            gameHistory.push({
+                amount: winAmount,
+                coefficient: currentCoefficient,
+                result: 'win',
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
+            
+            currentBet = 0;
+            saveData();
+            updateUI();
+            updateHistory();
+            updateStats();
+            
+            // Создаем искры при успешном выводе
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => createSpark(), i * 100);
+            }
+            
+            // Перезапускаем игру
+            setTimeout(() => {
+                fireContainer.style.display = 'none';
+                rocketEl.style.bottom = '40px';
+                coefficientEl.textContent = '1.00x';
+                
+                gamePhase = 'waiting';
+                updateUI();
+                startTimer();
+            }, 1000);
+        }
+        
+        // Сделать ставку
+        function placeBet(amount) {
+            if (gamePhase !== 'waiting') {
+                showStatusMessage('Ставки принимаются только перед взлетом ракеты!', 'error');
+                return;
+            }
+            
+            if (amount > userBalance) {
+                showStatusMessage('Недостаточно звезд на балансе!', 'error');
+                return;
+            }
+            
+            if (amount < 1) {
+                showStatusMessage('Минимальная ставка: 1 ⭐', 'error');
+                return;
+            }
+            
+            currentBet = amount;
+            userBalance -= amount;
+            showStatusMessage(`Ставка ${amount} ⭐ принята! Готовьтесь к взлету.`, 'success');
+            updateUI();
+        }
+        
+        // Симуляция платежа через Telegram Stars
+        function simulateTelegramPayment(amount, price) {
+            // В реальном приложении здесь будет вызов Telegram API для открытия платежного окна
+            // window.Telegram.WebApp.openInvoice(url, callback)
+            
+            // Показываем модальное окно оплаты
+            paymentAmountEl.textContent = amount;
+            paymentPriceEl.textContent = price;
+            paymentModal.style.display = 'flex';
+            paymentStatusEl.style.display = 'none';
+            
+            // Возвращаем промис для симуляции
+            return new Promise((resolve, reject) => {
+                // Сохраняем данные платежа для использования в обработчике
+                window.currentPayment = { amount, resolve, reject };
+            });
+        }
+        
+        // Обработка успешного платежа
+        function processPaymentSuccess(amount) {
+            userBalance += amount;
+            
+            // Сохраняем историю платежей
+            const paymentHistory = JSON.parse(localStorage.getItem('paymentHistory') || '[]');
+            paymentHistory.push({
+                amount: amount,
+                date: new Date().toISOString(),
+                timestamp: Date.now()
+            });
+            localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+            
+            saveData();
+            updateUI();
+            
+            // Показываем сообщение об успехе
+            paymentStatusEl.innerHTML = `
+                <div style="background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 10px; border-radius: 5px; border: 1px solid #4ade80;">
+                    <i class="fas fa-check-circle"></i> Оплата прошла успешно! На ваш баланс зачислено ${amount} ⭐
+                </div>
+            `;
+            paymentStatusEl.style.display = 'block';
+            
+            // Закрываем окно через 2 секунды
+            setTimeout(() => {
+                paymentModal.style.display = 'none';
+                showStatusMessage(`Баланс пополнен на ${amount} ⭐!`, 'success');
+            }, 2000);
+        }
+        
+        // Обработка неудачного платежа
+        function processPaymentError() {
+            paymentStatusEl.innerHTML = `
+                <div style="background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 10px; border-radius: 5px; border: 1px solid #ef4444;">
+                    <i class="fas fa-times-circle"></i> Оплата не прошла. Пожалуйста, попробуйте еще раз.
+                </div>
+            `;
+            paymentStatusEl.style.display = 'block';
+        }
+        
+        // Инициализация приложения
+        function init() {
+            // Проверяем, запущено ли в Telegram
+            checkTelegramApp();
+            
+            loadData();
+            createStarfield();
+            startTimer();
+            
+            // Обработчики событий для ставок
+            betBtn.addEventListener('click', () => {
+                if (userBalance <= 0) {
+                    showStatusMessage('Пополните баланс, чтобы сделать ставку!', 'error');
+                    return;
+                }
+                betModal.style.display = 'flex';
+            });
+            
+            closeBetModal.addEventListener('click', () => {
+                betModal.style.display = 'none';
+            });
+            
+            confirmBetBtn.addEventListener('click', () => {
+                const amount = parseInt(betAmountEl.value);
+                placeBet(amount);
+                betModal.style.display = 'none';
+            });
+            
+            // Обработчики событий для пополнения
+            replenishBtn.addEventListener('click', () => {
+                replenishModal.style.display = 'flex';
+            });
+            
+            closeReplenishModal.addEventListener('click', () => {
+                replenishModal.style.display = 'none';
+            });
+            
+            // Обработчики для выбора пакета звезд
+            telegramPaymentOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const amount = parseInt(option.getAttribute('data-amount'));
+                    const price = option.getAttribute('data-price');
+                    
+                    // Закрываем окно выбора и открываем окно оплаты
+                    replenishModal.style.display = 'none';
+                    simulateTelegramPayment(amount, `~ ${price} USD`);
+                });
+            });
+            
+            // Обработчики для кастомной суммы
+            customAmountBtn.addEventListener('click', () => {
+                replenishModal.style.display = 'none';
+                customAmountModal.style.display = 'flex';
+            });
+            
+            closeCustomAmountModal.addEventListener('click', () => {
+                customAmountModal.style.display = 'none';
+            });
+            
+            // Обновление цены при изменении кастомной суммы
+            customAmountEl.addEventListener('input', () => {
+                const amount = parseInt(customAmountEl.value) || 100;
+                estimatedPriceEl.textContent = calculatePrice(amount);
+            });
+            
+            confirmCustomAmountBtn.addEventListener('click', () => {
+                const amount = parseInt(customAmountEl.value) || 100;
+                if (amount < 10) {
+                    showStatusMessage('Минимальная сумма пополнения: 10 звезд', 'error');
+                    return;
+                }
+                
+                customAmountModal.style.display = 'none';
+                simulateTelegramPayment(amount, calculatePrice(amount));
+            });
+            
+            // Обработчики событий для правил
+            rulesBtn.addEventListener('click', () => {
+                rulesModal.style.display = 'flex';
+            });
+            
+            closeRulesModal.addEventListener('click', () => {
+                rulesModal.style.display = 'none';
+            });
+            
+            // Обработчики для симуляции оплаты
+            simulatePaymentBtn.addEventListener('click', () => {
+                const amount = parseInt(paymentAmountEl.textContent);
+                
+                // Показываем процесс оплаты
+                paymentStatusEl.innerHTML = `
+                    <div style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 10px; border-radius: 5px; border: 1px solid #3b82f6;">
+                        <i class="fas fa-spinner fa-spin"></i> Обработка платежа...
+                    </div>
+                `;
+                paymentStatusEl.style.display = 'block';
+                
+                // Симулируем задержку обработки платежа
+                setTimeout(() => {
+                    // 90% шанс успешной оплаты для демонстрации
+                    if (Math.random() > 0.1) {
+                        processPaymentSuccess(amount);
+                    } else {
+                        processPaymentError();
+                    }
+                }, 1500);
+            });
+            
+            closePaymentModal.addEventListener('click', () => {
+                paymentModal.style.display = 'none';
+            });
+            
+            cashoutBtn.addEventListener('click', cashout);
+            
+            // Закрытие модальных окон при клике вне их
+            window.addEventListener('click', (e) => {
+                if (e.target === betModal) {
+                    betModal.style.display = 'none';
+                }
+                if (e.target === replenishModal) {
+                    replenishModal.style.display = 'none';
+                }
+                if (e.target === customAmountModal) {
+                    customAmountModal.style.display = 'none';
+                }
+                if (e.target === rulesModal) {
+                    rulesModal.style.display = 'none';
+                }
+                if (e.target === paymentModal) {
+                    paymentModal.style.display = 'none';
+                }
+            });
+            
+            // Обработчики для меню
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const section = item.getAttribute('data-section');
+                    
+                    // Обновляем активный элемент меню
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Показываем выбранный раздел
+                    sections.forEach(s => s.classList.remove('active'));
+                    document.getElementById(section)?.classList.add('active');
+                });
+            });
+            
+            // Автоматическое обновление истории каждые 5 секунд
+            setInterval(updateHistory, 5000);
+            
+            // Обновление звездного поля каждые 30 секунд
+            setInterval(createStarfield, 30000);
+        }
+        
+        // Запуск приложения при загрузке страницы
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
